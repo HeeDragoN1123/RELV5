@@ -3,83 +3,18 @@ generator client {
 }
 
 datasource db {
-  // MySQL 데이터베이스 엔진을 사용합니다.
   provider = "mysql"
-   // 데이터베이스 연결 정보를 .env 파일의 DATABASE_URL 로부터 읽어옵니다.
   url      = env("DATABASE_URL")
 }
 
-
-//회원가입 테이블 정의
-model Users {
-  userId      String    @id @default(uuid()) @map("userId")
-  nickname    String    @unique @map("nickname")
-  password    String    @map("password")
-  createdAt   DateTime  @default(now()) @map("createdAt")
-  updatedAt   DateTime  @updatedAt @map("updatedAt")
-
-  //관계 설정
-  Posts Posts[]         // Users 와 Posts 테이블이  1:N 관계 
-  Comments Comments[]   // Users 와 Comments 테이블이  1:N 관계
-  Likes   Likes []      // Users 와 Likes 테이블이  1:N 관계
-
-@@map("Users")
-}
-
-// 포스트 테이블 정의
-
 model Posts {
-  postId      String    @id @default(uuid()) @map("postId")
-  title       String    @map("title")
-  content     String    @db.Text @map("content") 
-  createdAt   DateTime  @default(now()) @map("createdAt")
-  updatedAt   DateTime  @updatedAt @map("updatedAt")
-
-  //외래키
-  UserId      String    @map("UserId")
-
-  // 관계 설정
-  Users Users @relation(fields: [UserId], references: [userId],onDelete: Cascade)
-  comments  Comments[]  // 1:N 관계
-  Likes   Likes []   // 1:N 관계
+  postId    Int      @id @default(autoincrement()) @map("postId")
+  title     String   @map("title")
+  content   String   @map("content") @db.Text
+  nickname  String   @map("nickname")
+  password  String   @map("password")
+  createdAt DateTime @default(now()) @map("createdAt")
+  updatedAt DateTime @updatedAt @map("updatedAt")
 
   @@map("Posts")
-}
-
-// 코멘트 테이블 정의
-
-model Comments {
-commentId   String      @id @default(uuid()) @map("commentId")
-comment     String      @map("comment") @db.Text
-createdAt   DateTime    @default(now()) @map("createdAt") 
-updatedAt   DateTime    @updatedAt @map("updatedAt")
- 
- //외래키
-UserId      String      @map("userId") // 사용자는 여러개의 게시글을 가질수있기 떄문에 유니크를 제외 
-PostId      String      @map("postId")
-
-// 관계 설정
-Users       Users       @relation(fields: [UserId], references: [userId],onDelete: Cascade)   
-Posts       Posts       @relation( fields: [PostId], references: [postId]) 
-  
-  @@map("Comments")
-}
-
-
-model Likes {
-likeId        String    @id @default(uuid()) @map("likeId")
-createdAt     DateTime  @default(now()) @map("createdAt") 
-updatedAt     DateTime  @updatedAt @map("updatedAt")
-
-//외래키 
-PostId        String    @map("postId")
-UserId        String    @map("userId")
-
-// 관계 설정
-  Users       Users     @relation(fields: [UserId], references: [userId], onDelete: Cascade)
-  Posts       Posts     @relation(fields: [PostId], references: [postId], onDelete: Cascade)
-
-
-
-@@map("Likes")
 }
