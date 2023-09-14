@@ -1,5 +1,9 @@
 import {UserRepository} from '../repositories/userRepo.js'
 import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
+import dotEnv from 'dotenv';
+
+dotEnv.config();
 
 export class UserService {
 userRepository = new UserRepository();
@@ -32,7 +36,7 @@ if(isExistUser){
         userId : createUser.userId,
         nickname: createUser.nickname,
         // password : createUser.hashedPassword,  // 확인용
-        // salt : createUser,salt, // 확인용 보여지면 안됨
+        salt : createUser,salt, // 확인용 보여지면 안됨
     }
 
     // const hashedPassword = await bcrypt.hash(password, 10);
@@ -62,14 +66,15 @@ async loginUser(nickname, password) {
     }
 
     // 비밀번호 검증
-    const passwordMatch = await bcrypt.compare(password, user.hashedPassword);
+    const passwordMatch = await bcrypt.compare(password, user.password);
 
     if (!passwordMatch) {
-        throw new Error('비밀번호가 일치하지 않습니다.');
+        throw new Error({ message: '비밀번호가 일치하지 않습니다.' });
     }
 
+
     // JWT 토큰 발급 
-    const token = jwt.sign({ userId: user.userId }, 'customized-secret-key', { expiresIn: '1h' });
+    const token = jwt.sign({ userId: user.userId }, "customized_secret_key", { expiresIn: '1h' });
     // dotenv 로 SESSION_SECRET_KEY="customized_secret_key" 로 바꿔야함
 
     return { user, token }; // 사용자 정보와 토큰을 반환

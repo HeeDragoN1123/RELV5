@@ -17,8 +17,6 @@ createUser = async(req, res, next) =>{
 
 
 
-
-
 /* 로그인 */
 
 loginUser = async(req, res, next) =>{
